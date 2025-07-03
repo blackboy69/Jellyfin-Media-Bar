@@ -104,13 +104,15 @@ const addThrottledRequest = (url, callback) => {
 
 const isUserLoggedIn = () => {
   try {
+     if (STATE.slideshow.unauthorizedDetected) {
+        window.ApiClient._serverInfo.AccessToken = null; // Clear access token if unauthorized detected
+     }
     return (
       window.ApiClient &&
       window.ApiClient._currentUser &&
       window.ApiClient._currentUser.Id &&
       window.ApiClient._serverInfo &&
-      window.ApiClient._serverInfo.AccessToken && 
-      STATE.slideshow.unauthorizedDetected === false
+      window.ApiClient._serverInfo.AccessToken 
     );
   } catch (error) {
     console.error("Error checking login status:", error);
@@ -260,6 +262,7 @@ const resetSlideshowState = () => {
   STATE.slideshow.createdSlides = {};
   STATE.slideshow.totalItems = 0;
   STATE.slideshow.isLoading = false;
+  STATE.slideshow.unauthorizedDetected = false;
 };
 
 /**
