@@ -49,6 +49,7 @@ const STATE = {
     createdSlides: {},
     totalItems: 0,
     isLoading: false,
+    unauthorizedDetected: false,
   },
 };
 
@@ -103,6 +104,9 @@ const addThrottledRequest = (url, callback) => {
 
 const isUserLoggedIn = () => {
   try {
+     if (STATE.slideshow.unauthorizedDetected) {
+        window.ApiClient._serverInfo.AccessToken = null; // Clear access token if unauthorized detected
+     }
     return (
       window.ApiClient &&
       window.ApiClient._currentUser &&
@@ -258,6 +262,7 @@ const resetSlideshowState = () => {
   STATE.slideshow.createdSlides = {};
   STATE.slideshow.totalItems = 0;
   STATE.slideshow.isLoading = false;
+  STATE.slideshow.unauthorizedDetected = false;
 };
 
 /**
@@ -474,8 +479,10 @@ const ApiUtils = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch item details: ${response.statusText}`);
+      if (response.status === 401 || response.status === 403) {
+        console.warn("Not logged in. Cannot fetch item details.");
+        STATE.slideshow.unauthorizedDetected = true;
+        return null;
       }
 
       const itemData = await response.json();
