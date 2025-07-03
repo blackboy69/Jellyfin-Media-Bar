@@ -49,6 +49,7 @@ const STATE = {
     createdSlides: {},
     totalItems: 0,
     isLoading: false,
+    unauthorizedDetected: false,
   },
 };
 
@@ -108,7 +109,8 @@ const isUserLoggedIn = () => {
       window.ApiClient._currentUser &&
       window.ApiClient._currentUser.Id &&
       window.ApiClient._serverInfo &&
-      window.ApiClient._serverInfo.AccessToken
+      window.ApiClient._serverInfo.AccessToken && 
+      STATE.slideshow.unauthorizedDetected === false
     );
   } catch (error) {
     console.error("Error checking login status:", error);
@@ -474,8 +476,10 @@ const ApiUtils = {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch item details: ${response.statusText}`);
+      if (response.status === 401 || response.status === 403) {
+        console.warn("Not logged in. Cannot fetch item details.");
+        STATE.slideshow.unauthorizedDetected = true;
+        return null;
       }
 
       const itemData = await response.json();
