@@ -1225,10 +1225,8 @@ const SlideshowManager = {
 
         if (!currentSlide) {
           console.error(`Failed to create slide for item ${currentItemId}`);
-          STATE.slideshow.isTransitioning = false;
-          /*lets not spam the server on errors. 
-          setTimeout(() => this.nextSlide(), 500);
-          */
+          STATE.slideshow.isTransitioning = false;          
+          setTimeout(() => this.nextSlide(), 500);          
           return;
         }
       }
