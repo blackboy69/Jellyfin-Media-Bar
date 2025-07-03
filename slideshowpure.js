@@ -112,7 +112,7 @@ const isUserLoggedIn = () => {
       window.ApiClient._currentUser &&
       window.ApiClient._currentUser.Id &&
       window.ApiClient._serverInfo &&
-      window.ApiClient._serverInfo.AccessToken 
+      window.ApiClient._serverInfo.AccessToken
     );
   } catch (error) {
     console.error("Error checking login status:", error);
@@ -478,6 +478,10 @@ const ApiUtils = {
           headers: this.getAuthHeaders(),
         }
       );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch item details: ${response.statusText}`);
+      }
 
       if (response.status === 401 || response.status === 403) {
         console.warn("Not logged in. Cannot fetch item details.");
@@ -1228,8 +1232,8 @@ const SlideshowManager = {
 
         if (!currentSlide) {
           console.error(`Failed to create slide for item ${currentItemId}`);
-          STATE.slideshow.isTransitioning = false;          
-          setTimeout(() => this.nextSlide(), 500);          
+          STATE.slideshow.isTransitioning = false;
+          setTimeout(() => this.nextSlide(), 500);
           return;
         }
       }
